@@ -1,68 +1,50 @@
-"use server"
+'use server';
 
-import { SearchOutcome } from "../(@types)/SearchOutcome";
-import puppeteer from "puppeteer";
-
+import { SearchOutcome } from '../(@types)/SearchOutcome';
+import puppeteer from 'puppeteer';
 
 /**
- * Scrapes Shoprite website for products based on search string.
- * 
+ * Scrapes Checkers website for products based on search string.
+ *
  * @param searchString - The search string to use.
- * 
+ *
+ * @returns {Promise<SearchOutcome[]>} - The search outcome.
  */
 export async function queryCheckers(searchString: string) {
+  try {
+    // Launch the browser and open a new blank page
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
 
-    let browser;
+    await browser.userAgent();
 
-    try {
-        
-            // Launch the browser and open a new blank page
-        browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
+    const page = await browser.newPage();
 
-        await browser.userAgent();
+    // Navigate the page to a URL and wait for the dom to be rendered.
+    await page.goto(`https://www.checkers.co.za/search/all?q=${searchString}`, {
+      waitUntil: 'domcontentloaded',
+    });
+    await page.setViewport({ width: 1280, height: 800 });
 
-        const page = await browser.newPage();
+    const productList = await page.evaluate(() => {
+      const itemsList = Array.from(document.querySelectorAll('.product-frame'));
 
-        await page.setViewport({ width: 1280, height: 800 });
+      return itemsList.map((item) => {
+        const dataProductGa = item.getAttribute('data-product-ga');
 
+        if (dataProductGa) {
+          return JSON.parse(dataProductGa);
+        }
+      });
+    });
 
-        // Navigate the page to a URL and wait for the dom to be rendered.
-        await page.goto(`https://www.checkers.co.za/search/all?q=${searchString}`, {
-            waitUntil: 'domcontentloaded'
-        });
+    // Close the browser
+    await browser.close();
 
-        const productList = await page.evaluate(() => {
-            const itemsList =Array.from(document.querySelectorAll('.product-frame'));
-
-            return itemsList.map(item => {
-                const dataProductGa = item.getAttribute('data-product-ga');
-
-                const replacedString = dataProductGa?.replace(/&quot;/g, '"');
-
-               if (replacedString) {
-                return JSON.parse(replacedString);
-               }
-
-            });
-
-            
-        });
-
-        // Close the browser
-        await browser.close();
-
-        return productList;
-
-    } catch (error) {
-
-       throw error;
-        
-    } finally {
-        // Close the browser
-    
-    }
-
+    return productList;
+  } catch (error) {
+    throw error;
+  }
 }

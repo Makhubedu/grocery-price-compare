@@ -1,66 +1,52 @@
-"use server"
+'use server';
 
-import { SearchOutcome } from "../(@types)/SearchOutcome";
-import puppeteer from "puppeteer";
-
+import { SearchOutcome } from '../(@types)/SearchOutcome';
+import puppeteer from 'puppeteer';
 
 /**
  * Scrapes Shoprite website for products based on search string.
- * 
+ *
  * @param searchString - The search string to use.
- * 
+ *
  */
 export async function queryShoprite(searchString: string) {
+  try {
+    // Launch the browser and open a new blank page
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
 
-    let browser;
+    await browser.userAgent();
 
-    try {
-        
-        // Launch the browser and open a new blank page
-        browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
+    const page = await browser.newPage();
 
-        await browser.userAgent();
+    await page.setViewport({ width: 1280, height: 800 });
 
-        const page = await browser.newPage();
+    // Navigate the page to a URL and wait for the dom to be rendered.
+    await page.goto(`https://www.shoprite.co.za/search/all?q=${searchString}`, {
+      waitUntil: 'domcontentloaded',
+    });
 
-        await page.setViewport({ width: 1280, height: 800 });
+    const productList = await page.evaluate(() => {
+      const itemsList = Array.from(document.querySelectorAll('.product-frame'));
 
+      return itemsList.map((item) => {
+        const dataProductGa = item.getAttribute('data-product-ga');
 
-        // Navigate the page to a URL and wait for the dom to be rendered.
-        await page.goto(`https://www.shoprite.co.za/search/all?q=${searchString}`, {
-            waitUntil: 'domcontentloaded'
-        });
+        const replacedString = dataProductGa?.replace(/&quot;/g, '"');
 
-        const productList = await page.evaluate(() => {
-            const itemsList =Array.from(document.querySelectorAll('.product-frame'));
+        if (replacedString) {
+          return JSON.parse(replacedString);
+        }
+      });
+    });
 
-            return itemsList.map(item => {
-                const dataProductGa = item.getAttribute('data-product-ga');
+    // Close the browser
+    await browser.close();
 
-                const replacedString = dataProductGa?.replace(/&quot;/g, '"');
-
-               if (replacedString) {
-                return JSON.parse(replacedString);
-               }
-
-            });
-        });;
-
-        // Close the browser
-        await browser.close();
-
-        return productList;
-
-    } catch (error) {
-
-       throw error;
-        
-    } finally {
-        // Close the browser
-    
-    }
-
+    return productList;
+  } catch (error) {
+    throw error;
+  }
 }
