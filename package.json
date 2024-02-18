@@ -11,14 +11,21 @@
   },
   "dependencies": {
     "next": "14.1.0",
-    "puppeteer": "^22.0.0",
+    "puppeteer": "^22.1.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-anonymize-ua": "^2.4.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "rand-user-agent": "^2.0.50",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "user-agents": "^1.1.118"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/user-agents": "^1.0.4",
+    "@types/useragent": "^2.3.4",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.1.0",

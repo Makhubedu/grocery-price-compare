@@ -1,7 +1,11 @@
 'use server';
 
-import { SearchOutcome } from '../(@types)/SearchOutcome';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-extra';
+import { executablePath } from 'puppeteer';
+
+// add stealth plugin and use defaults (all evasion techniques)
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import anonymous from 'puppeteer-extra-plugin-anonymize-ua';
 
 /**
  * Scrapes Checkers website for products based on search string.
@@ -12,15 +16,20 @@ import puppeteer from 'puppeteer';
  */
 export async function queryCheckers(searchString: string) {
   try {
-    // Launch the browser and open a new blank page
+    puppeteer.use(StealthPlugin());
+    puppeteer.use(anonymous());
+
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: executablePath(),
+      ignoreHTTPSErrors: true,
     });
 
-    await browser.userAgent();
-
     const page = await browser.newPage();
+
+    await page.setUserAgent(
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/60.0.3112.50 Safari/537.36',
+    );
 
     // Navigate the page to a URL and wait for the dom to be rendered.
     await page.goto(`https://www.checkers.co.za/search/all?q=${searchString}`, {
@@ -41,7 +50,7 @@ export async function queryCheckers(searchString: string) {
     });
 
     // Close the browser
-    await browser.close();
+    // await browser.close();
 
     return productList;
   } catch (error) {
