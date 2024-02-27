@@ -1,7 +1,6 @@
 'use server';
-
-import { SearchOutcome } from '../(@types)/SearchOutcome';
-import puppeteer from 'puppeteer';
+import axios from 'axios';
+import { load } from 'cheerio';
 
 /**
  * Scrapes Shoprite website for products based on search string.
@@ -11,39 +10,20 @@ import puppeteer from 'puppeteer';
  */
 export async function queryShoprite(searchString: string) {
   try {
-    // Launch the browser and open a new blank page
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
 
-    await browser.userAgent();
+    const { data } = await axios.get(`https://www.shoprite.co.za/search/all?q=${searchString}`);
 
-    const page = await browser.newPage();
+    const $ = load(data);
 
-    await page.setViewport({ width: 1280, height: 800 });
+    const itemsList = $('.product-frame');
 
-    // Navigate the page to a URL and wait for the dom to be rendered.
-    await page.goto(`https://www.shoprite.co.za/search/all?q=${searchString}`, {
-      waitUntil: 'domcontentloaded',
-    });
+    const productList = itemsList.map((i, item) => {
+        const dataProductGa = $(item).attr('data-product-ga');
 
-    const productList = await page.evaluate(() => {
-      const itemsList = Array.from(document.querySelectorAll('.product-frame'));
-
-      return itemsList.map((item) => {
-        const dataProductGa = item.getAttribute('data-product-ga');
-
-        const replacedString = dataProductGa?.replace(/&quot;/g, '"');
-
-        if (replacedString) {
-          return JSON.parse(replacedString);
+        if (dataProductGa) {
+            return JSON.parse(dataProductGa);
         }
-      });
-    });
-
-    // Close the browser
-    await browser.close();
+    }).get();
 
     return productList;
   } catch (error) {
