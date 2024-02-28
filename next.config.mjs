@@ -2,9 +2,7 @@
 const nextConfig = {
     experimental: {
         serverComponentsExternalPackages: [
-          'puppeteer-extra', 
-          'puppeteer-extra-plugin-stealth',
-          'puppeteer-extra-plugin-anonymize-ua'
+          'puppeteer-core'
         ],
       },
 };

@@ -1,8 +1,8 @@
 //  https://api-beta-game.walmart.com/occ/v2/game/channel/web/zone/G121/products/search?fields=DEFAULT&currentPage=0
 
 'use server';
-import axios from 'axios';
-import puppeteer from 'puppeteer';
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 
 /**
  * Scrapes Game website for products based on search string.
@@ -14,7 +14,17 @@ import puppeteer from 'puppeteer';
 export async function queryGame(searchString: string) {
   try {
 
-    const browser = await puppeteer.launch();
+    chromium.setHeadlessMode = true;
+    chromium.setGraphicsMode = false;
+
+    const browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      channel: 'chrome',
+      headless: true,
+      ignoreHTTPSErrors: true,
+  });
+
     const page = await browser.newPage();
 
     const [response] = await Promise.all([
