@@ -1,9 +1,9 @@
-//  https://api-beta-game.walmart.com/occ/v2/game/channel/web/zone/G121/products/search?fields=DEFAULT&currentPage=0
+// api/run.js
+import edgeChromium from 'chrome-aws-lambda'
 
-'use server';
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium-min";
-
+// Importing Puppeteer core as default otherwise
+// it won't function correctly with "launch()"
+import puppeteer from 'puppeteer-core'
 /**
  * Scrapes Game website for products based on search string.
  *
@@ -14,16 +14,14 @@ import chromium from "@sparticuz/chromium-min";
 export async function queryGame(searchString: string) {
   try {
 
-    chromium.setHeadlessMode = true;
-    chromium.setGraphicsMode = false;
+    console.log(await edgeChromium.executablePath)
 
     const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      channel: 'chrome',
-      headless: chromium.headless as any,
-      ignoreHTTPSErrors: true,
-  });
+      args: edgeChromium.args,
+      headless: false,
+      executablePath: await edgeChromium.executablePath,
+    })
+  
 
     const page = await browser.newPage();
 
