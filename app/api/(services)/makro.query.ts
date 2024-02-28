@@ -1,3 +1,6 @@
+// Force the import without types
+// @ts-ignore
+
 import puppeteer from "puppeteer-core";
 import chrome from "chrome-aws-lambda";
 
@@ -22,7 +25,7 @@ export async function queryMakro(searchString: string) {
     const page = await browser.newPage();
 
     const [response] = await Promise.all([
-      page.waitForResponse(response => {
+      page.waitForResponse((response: any) => {
         return response.url().startsWith('https://www.makro.co.za/wmapi/bff/graphql/Search') && response.status() === 200 && response.request().method() === 'POST';
       }
       ),

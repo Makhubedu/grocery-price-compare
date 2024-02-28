@@ -1,3 +1,4 @@
+// @ts-ignore
 import puppeteer from "puppeteer-core";
 import chrome from "chrome-aws-lambda";
 /**
@@ -9,7 +10,7 @@ import chrome from "chrome-aws-lambda";
  */
 export async function queryGame(searchString: string) {
   try {
-    
+
     const browser = await puppeteer.launch({
       args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
       defaultViewport: chrome.defaultViewport,
@@ -22,7 +23,7 @@ export async function queryGame(searchString: string) {
     const page = await browser.newPage();
 
     const [response] = await Promise.all([
-      page.waitForResponse(response => {
+      page.waitForResponse((response: any) => {
         return response.url().startsWith('https://api-beta-game.walmart.com/occ/v2/game/channel/web/zone') && response.status() === 200 && response.request().method() === 'POST';
       }
       ),
