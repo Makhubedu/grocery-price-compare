@@ -17,7 +17,7 @@ export async function queryMakro(searchString: string) {
     const browser = await puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
+        executablePath: '/usr/bin/chromium-browser',
         headless: true,
         ignoreHTTPSErrors: true,
     });

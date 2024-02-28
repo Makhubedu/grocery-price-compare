@@ -20,7 +20,7 @@ export async function queryGame(searchString: string) {
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
+      channel: 'chrome',
       headless: true,
       ignoreHTTPSErrors: true,
   });
