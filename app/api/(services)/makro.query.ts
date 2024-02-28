@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import chromium from "@sparticuz/chromium-min";
 
 /**
  * Scrapes Game website for products based on search string.
@@ -17,9 +17,10 @@ export async function queryMakro(searchString: string) {
     const browser = await puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath("https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar"),
-        headless: true,
+        channel: 'chrome',
+        headless: chromium.headless as any,
         ignoreHTTPSErrors: true,
+  
     });
 
     const page = await browser.newPage();
