@@ -17,7 +17,7 @@ export async function queryMakro(searchString: string) {
     const browser = await puppeteer.launch({
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
+        executablePath: await chromium.executablePath("https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar"),
         headless: true,
         ignoreHTTPSErrors: true,
     });
