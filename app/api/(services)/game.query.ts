@@ -11,33 +11,53 @@ import puppeteer from 'puppeteer';
  *
  * @returns {Promise<SearchOutcome[]>} - The search outcome.
  */
-export async function game(searchString: string) {
+export async function queryGame(searchString: string) {
   try {
 
-    const browser = await puppeteer.launch({ headless: false});
+    const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
-    await page.goto(`https://www.game.co.za/l/search/?q=${searchString}%3Arelevance&t=${searchString}`);
-    
-    // Promise that resolves when the data is received
-    const dataPromise = new Promise(resolve => {
-        page.on('response', async response => {
-          if (response.url().includes('https://api-beta-game.walmart.com/occ/v2/game/channel/web/zone') && response.status() === 200) {
-            const data = await response.json();
-            resolve(data.products); // Resolve with the products
-          }
-        });
-      });
-  
-      // Wait for the data to be received
-      const products = await dataPromise;
-  
-      await browser.close();
-  
-      return products;
+    const [response] = await Promise.all([
+      page.waitForResponse(response => {
+        return response.url().startsWith('https://api-beta-game.walmart.com/occ/v2/game/channel/web/zone') && response.status() === 200 && response.request().method() === 'POST';
+      }
+      ),
+      page.goto(`https://www.game.co.za/l/search/?q=${searchString}%3Arelevance&t=${searchString}`)
+    ]);
 
-
+  
     
+    const { products } = await response.json();
+    await browser.close();
+
+    // id: product.code,
+    //     name: product.name,
+    //     price: product.price.value,
+    //     brand: product.brandSellerId,
+    //     category: '',
+    //     position: '',
+    //     variant: '',
+    //     list:'',
+    //     unit_sale_price: product.price.formattedValue,
+    //     stock: product.stock.stockLevelStatus,
+    //     product_image_url: product.images[2].url,
+
+    return products.map((product: any) => {
+      return {
+        id: product.code,
+        name: product.name,
+        price: product.price.value,
+        brand: product.brand,
+        category: product.categoryL1,
+        position: '',
+        variant: '',
+        list:'',
+        unit_sale_price: '',
+        stock: product.stock.stockLevelStatus,
+        product_image_url: product.image.url,
+      };
+    });
+
   } catch (error) {
     console.log(error);
     throw error;

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { queryGame } from '../(services)/game.query';
+import { queryMakro } from '../(services)/makro.query';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    const result = await queryGame(searchText);
+    const result = await queryMakro(searchText);
 
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
