@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium-min";
+import chrome from "chrome-aws-lambda";
 
 /**
  * Scrapes Game website for products based on search string.
@@ -11,18 +11,14 @@ import chromium from "@sparticuz/chromium-min";
 export async function queryMakro(searchString: string) {
   try {
 
-    chromium.setHeadlessMode = true;
-    chromium.setGraphicsMode = false;
-
     const browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        channel: 'chrome',
-        headless: chromium.headless as any,
+        args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
+        defaultViewport: chrome.defaultViewport,
+        executablePath: await chrome.executablePath,
+        headless: true,
         ignoreHTTPSErrors: true,
-  
-    });
-
+    
+      });
     const page = await browser.newPage();
 
     const [response] = await Promise.all([

@@ -1,9 +1,5 @@
-// api/run.js
-import edgeChromium from 'chrome-aws-lambda'
-
-// Importing Puppeteer core as default otherwise
-// it won't function correctly with "launch()"
-import puppeteer from 'puppeteer-core'
+import puppeteer from "puppeteer-core";
+import chrome from "chrome-aws-lambda";
 /**
  * Scrapes Game website for products based on search string.
  *
@@ -13,16 +9,16 @@ import puppeteer from 'puppeteer-core'
  */
 export async function queryGame(searchString: string) {
   try {
-
-    console.log(await edgeChromium.executablePath)
-
+    
     const browser = await puppeteer.launch({
-      args: edgeChromium.args,
-      headless: false,
-      executablePath: await edgeChromium.executablePath,
-    })
+      args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
+      defaultViewport: chrome.defaultViewport,
+      executablePath: await chrome.executablePath,
+      headless: true,
+      ignoreHTTPSErrors: true,
   
-
+    });
+  
     const page = await browser.newPage();
 
     const [response] = await Promise.all([
