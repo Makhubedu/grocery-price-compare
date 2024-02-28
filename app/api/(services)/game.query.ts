@@ -30,18 +30,6 @@ export async function queryGame(searchString: string) {
     const { products } = await response.json();
     await browser.close();
 
-    // id: product.code,
-    //     name: product.name,
-    //     price: product.price.value,
-    //     brand: product.brandSellerId,
-    //     category: '',
-    //     position: '',
-    //     variant: '',
-    //     list:'',
-    //     unit_sale_price: product.price.formattedValue,
-    //     stock: product.stock.stockLevelStatus,
-    //     product_image_url: product.images[2].url,
-
     return products.map((product: any) => {
       return {
         id: product.code,
