@@ -12,7 +12,7 @@ export async function queryGame(searchString: string) {
   try {
 
     const browser = await puppeteer.launch({
-      args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
+      args: [...chrome.args, "--hide-scrollbars", "--disable-web-security",'--no-sandbox', '--disable-setuid-sandbox'],
       defaultViewport: chrome.defaultViewport,
       executablePath: await chrome.executablePath,
       headless: true,
