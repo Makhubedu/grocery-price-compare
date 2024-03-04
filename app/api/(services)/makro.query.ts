@@ -1,8 +1,7 @@
 // Force the import without types
 // @ts-ignore
 
-import puppeteer from "puppeteer-core";
-import chrome from "chrome-aws-lambda";
+import puppeteer from "puppeteer";
 
 /**
  * Scrapes Game website for products based on search string.
@@ -15,13 +14,11 @@ export async function queryMakro(searchString: string) {
   try {
 
     const browser = await puppeteer.launch({
-        args: [...chrome.args, "--hide-scrollbars", "--disable-web-security",'--no-sandbox', '--disable-setuid-sandbox'],
-        defaultViewport: chrome.defaultViewport,
-        executablePath: await chrome.executablePath,
-        headless: true,
-        ignoreHTTPSErrors: true,
-    
-      });
+      executablePath: '/usr/bin/chromium-browser',
+      headless: true,
+      ignoreDefaultArgs: ['--disable-extensions'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
     const page = await browser.newPage();
 
     const [response] = await Promise.all([

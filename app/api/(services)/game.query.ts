@@ -1,6 +1,4 @@
-// @ts-ignore
-import puppeteer from "puppeteer-core";
-import chrome from "chrome-aws-lambda";
+import puppeteer from "puppeteer";
 /**
  * Scrapes Game website for products based on search string.
  *
@@ -12,12 +10,10 @@ export async function queryGame(searchString: string) {
   try {
 
     const browser = await puppeteer.launch({
-      args: [...chrome.args, "--hide-scrollbars", "--disable-web-security",'--no-sandbox', '--disable-setuid-sandbox'],
-      defaultViewport: chrome.defaultViewport,
-      executablePath: await chrome.executablePath,
-      headless: true,
-      ignoreHTTPSErrors: true,
-  
+      executablePath: '/usr/bin/chromium-browser',
+      headless: false,
+      ignoreDefaultArgs: ['--disable-extensions'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
   
     const page = await browser.newPage();
